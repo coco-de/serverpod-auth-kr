@@ -6,7 +6,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import '../../generated/protocol.dart';
 import '../exceptions/naver_exceptions.dart';
 import 'naver_idp.dart';
-import 'naver_idp_utils.dart';
+import 'naver_profile.dart';
 
 /// Function to be called to check whether a Naver account details match the
 /// requirements during registration.
@@ -103,7 +103,7 @@ class NaverIdpConfig extends IdentityProviderBuilder<NaverIdp> {
          clientId: clientId,
          clientSecret: clientSecret,
          credentialsLocation: OAuth2CredentialsLocation.body,
-         parseTokenResponse: parseTokenResponse,
+         parseTokenResponse: parseNaverTokenResponse,
        );
 
   /// Default validation function for extracting additional Naver account
@@ -118,29 +118,6 @@ class NaverIdpConfig extends IdentityProviderBuilder<NaverIdp> {
     if (accountDetails.userIdentifier.isEmpty) {
       throw const NaverUserInfoMissingDataException();
     }
-  }
-
-  /// Default Naver token response parser for [OAuth2PkceServerConfig].
-  static OAuth2PkceTokenResponse parseTokenResponse(
-    final Map<String, dynamic> responseBody,
-  ) {
-    final error = responseBody['error'] as String?;
-    if (error != null) {
-      final errorDescription = responseBody['error_description'] as String?;
-      throw OAuth2InvalidResponseException(
-        'Invalid response from Naver:'
-        ' $error${errorDescription != null ? ' - $errorDescription' : ''}',
-      );
-    }
-
-    final accessToken = responseBody['access_token'] as String?;
-    if (accessToken == null) {
-      throw const OAuth2MissingAccessTokenException(
-        'No access token in Naver response',
-      );
-    }
-
-    return OAuth2PkceTokenResponse(accessToken: accessToken);
   }
 
   @override

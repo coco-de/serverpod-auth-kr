@@ -5,7 +5,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 
 import '../exceptions/kakao_exceptions.dart';
 import 'kakao_idp.dart';
-import 'kakao_idp_utils.dart';
+import 'kakao_profile.dart';
 
 // KakaoAccount 는 `serverpod generate` 후 생성되는 모델이다.
 // 생성 전까지는 아래 import 가 분석 에러를 일으킬 수 있으나 정상이다.
@@ -105,7 +105,7 @@ class KakaoIdpConfig extends IdentityProviderBuilder<KakaoIdp> {
          clientId: clientId,
          clientSecret: clientSecret,
          credentialsLocation: OAuth2CredentialsLocation.body,
-         parseTokenResponse: parseTokenResponse,
+         parseTokenResponse: parseKakaoTokenResponse,
        );
 
   /// Default validation function for Kakao account details.
@@ -119,32 +119,6 @@ class KakaoIdpConfig extends IdentityProviderBuilder<KakaoIdp> {
     if (accountDetails.userIdentifier.isEmpty) {
       throw const KakaoUserInfoMissingDataException();
     }
-  }
-
-  /// Default Kakao token response parser for [OAuth2PkceServerConfig].
-  ///
-  /// Throws [OAuth2InvalidResponseException] if Kakao returned an error, and
-  /// [OAuth2MissingAccessTokenException] if no access token is present.
-  static OAuth2PkceTokenResponse parseTokenResponse(
-    final Map<String, dynamic> responseBody,
-  ) {
-    final error = responseBody['error'] as String?;
-    if (error != null) {
-      final errorDescription = responseBody['error_description'] as String?;
-      throw OAuth2InvalidResponseException(
-        'Invalid response from Kakao:'
-        ' $error${errorDescription != null ? ' - $errorDescription' : ''}',
-      );
-    }
-
-    final accessToken = responseBody['access_token'] as String?;
-    if (accessToken == null) {
-      throw const OAuth2MissingAccessTokenException(
-        'No access token in Kakao response',
-      );
-    }
-
-    return OAuth2PkceTokenResponse(accessToken: accessToken);
   }
 
   @override
@@ -184,7 +158,20 @@ class KakaoIdpConfigFromPasswords extends KakaoIdpConfig {
     super.getExtraKakaoInfoCallback,
     super.onAfterKakaoAccountCreated,
   }) : super(
-         clientId: Serverpod.instance.getPasswordOrThrow('kakaoClientId'),
+         clientId: _requirePassword('kakaoClientId'),
          clientSecret: Serverpod.instance.getPassword('kakaoClientSecret'),
        );
+
+  /// Reads a required [key] from the `passwords.yaml` file via the public
+  /// Serverpod API, throwing a [StateError] when the key is missing.
+  static String _requirePassword(final String key) {
+    final password = Serverpod.instance.getPassword(key);
+    if (password == null) {
+      throw StateError(
+        'Missing password "$key" in passwords.yaml. Add it before using '
+        'KakaoIdpConfigFromPasswords.',
+      );
+    }
+    return password;
+  }
 }

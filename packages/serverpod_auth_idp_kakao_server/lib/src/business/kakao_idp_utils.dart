@@ -6,27 +6,10 @@ import 'package:serverpod_auth_idp_server/core.dart';
 
 import '../exceptions/kakao_exceptions.dart';
 import 'kakao_idp_config.dart';
+import 'kakao_profile.dart';
 
 // KakaoAccount 는 `serverpod generate` 후 생성되는 모델이다.
 import '../generated/protocol.dart';
-
-/// Details of the Kakao Account.
-///
-/// All nullable fields are not guaranteed to be available from Kakao's API,
-/// since the user may decline to share their email or profile information.
-typedef KakaoAccountDetails = ({
-  /// Kakao's user identifier for this account (stringified numeric `id`).
-  String userIdentifier,
-
-  /// The email received from Kakao (may be null if not consented).
-  String? email,
-
-  /// The user's nickname from Kakao.
-  String? name,
-
-  /// The user's profile image URL.
-  Uri? image,
-});
 
 /// Result of a successful authentication using Kakao as identity provider.
 typedef KakaoAuthSuccess = ({
@@ -206,41 +189,15 @@ class KakaoIdpUtils {
       session.logAndThrow('Invalid user info from Kakao: $e');
     }
 
-    KakaoAccountDetails details;
+    // Delegate the provider-specific response parsing (nested `kakao_account`
+    // / `profile` fields) to the pure [parseKakaoProfile], then apply any
+    // caller-configured account validation.
+    final KakaoAccountDetails details;
     try {
-      details = _parseAccountDetails(data);
-    } catch (e) {
-      session.logAndThrow('Invalid user info from Kakao: $e');
-    }
-
-    return details;
-  }
-
-  KakaoAccountDetails _parseAccountDetails(final Map<String, dynamic> data) {
-    final userId = data['id'];
-
-    final kakaoAccount = data['kakao_account'] as Map<String, dynamic>?;
-    final email = kakaoAccount?['email'] as String?;
-
-    final profile = kakaoAccount?['profile'] as Map<String, dynamic>?;
-    final nickname = profile?['nickname'] as String?;
-    final profileImageUrl = profile?['profile_image_url'] as String?;
-
-    if (userId == null) {
-      throw const KakaoUserInfoMissingDataException();
-    }
-
-    final details = (
-      userIdentifier: userId.toString(),
-      email: email?.toLowerCase(),
-      name: nickname,
-      image: profileImageUrl != null ? Uri.tryParse(profileImageUrl) : null,
-    );
-
-    try {
+      details = parseKakaoProfile(data);
       config.kakaoAccountDetailsValidation(details);
     } catch (e) {
-      throw const KakaoUserInfoMissingDataException();
+      session.logAndThrow('Invalid user info from Kakao: $e');
     }
 
     return details;

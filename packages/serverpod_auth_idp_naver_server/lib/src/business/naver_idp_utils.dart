@@ -7,24 +7,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import '../../generated/protocol.dart';
 import '../exceptions/naver_exceptions.dart';
 import 'naver_idp_config.dart';
-
-/// Details of the Naver Account.
-///
-/// All nullable fields are not guaranteed to be available from Naver's API,
-/// since the user may decline to share their email or name.
-typedef NaverAccountDetails = ({
-  /// Naver's user identifier for this account.
-  String userIdentifier,
-
-  /// The email received from Naver (may be null if not consented).
-  String? email,
-
-  /// The user's name from Naver.
-  String? name,
-
-  /// The user's profile image URL.
-  Uri? image,
-});
+import 'naver_profile.dart';
 
 /// Result of a successful authentication using Naver as identity provider.
 typedef NaverAuthSuccess = ({
@@ -205,52 +188,15 @@ class NaverIdpUtils {
       session.logAndThrow('Invalid user info from Naver: $e');
     }
 
-    // Naver wraps the result code at the top level. Anything other than '00'
-    // indicates a failed lookup.
-    final resultCode = data['resultcode'];
-    if (resultCode != '00') {
-      final message = data['message'];
-      session.logAndThrow(
-        'Naver user info lookup failed: resultcode=$resultCode'
-        '${message != null ? ' message=$message' : ''}',
-      );
-    }
-
-    NaverAccountDetails details;
+    // Delegate the provider-specific response parsing (resultcode unwrapping,
+    // `response` object, field extraction) to the pure [parseNaverProfile],
+    // then apply any caller-configured account validation.
+    final NaverAccountDetails details;
     try {
-      final responseData = data['response'] as Map<String, dynamic>?;
-      if (responseData == null) {
-        throw const NaverUserInfoMissingDataException();
-      }
-      details = _parseAccountDetails(responseData);
-    } catch (e) {
-      session.logAndThrow('Invalid user info from Naver: $e');
-    }
-
-    return details;
-  }
-
-  NaverAccountDetails _parseAccountDetails(final Map<String, dynamic> data) {
-    final userId = data['id'] as String?;
-    final email = data['email'] as String?;
-    final name = data['name'] as String?;
-    final profileImage = data['profile_image'] as String?;
-
-    if (userId == null) {
-      throw const NaverUserInfoMissingDataException();
-    }
-
-    final details = (
-      userIdentifier: userId,
-      email: email?.toLowerCase(),
-      name: name,
-      image: profileImage != null ? Uri.tryParse(profileImage) : null,
-    );
-
-    try {
+      details = parseNaverProfile(data);
       config.naverAccountDetailsValidation(details);
     } catch (e) {
-      throw const NaverUserInfoMissingDataException();
+      session.logAndThrow('Invalid user info from Naver: $e');
     }
 
     return details;
