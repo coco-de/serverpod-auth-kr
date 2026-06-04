@@ -42,12 +42,22 @@ class KakaoIdpUtils {
 
   final AuthUsers _authUsers;
 
+  /// HTTP client used for Kakao user info calls. Injectable for testing.
+  final http.Client _httpClient;
+
   /// Generic OAuth2 PKCE utility for token exchange.
   late final OAuth2PkceUtil _oauth2Util;
 
   /// Creates a new instance of [KakaoIdpUtils].
-  KakaoIdpUtils({required this.config, required final AuthUsers authUsers})
-    : _authUsers = authUsers {
+  ///
+  /// [httpClient] can be injected to mock Kakao API calls in tests; it
+  /// defaults to a standard [http.Client].
+  KakaoIdpUtils({
+    required this.config,
+    required final AuthUsers authUsers,
+    final http.Client? httpClient,
+  }) : _authUsers = authUsers,
+       _httpClient = httpClient ?? http.Client() {
     _oauth2Util = OAuth2PkceUtil(config: config.oauth2Config);
   }
 
@@ -171,7 +181,7 @@ class KakaoIdpUtils {
   }) async {
     // More info on the user API:
     // https://developers.kakao.com/docs/latest/en/kakaologin/rest-api#req-user-info
-    final response = await http.get(
+    final response = await _httpClient.get(
       Uri.https('kapi.kakao.com', '/v2/user/me'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );

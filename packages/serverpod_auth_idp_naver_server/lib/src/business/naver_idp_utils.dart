@@ -40,12 +40,22 @@ class NaverIdpUtils {
 
   final AuthUsers _authUsers;
 
+  /// HTTP client used for Naver user info calls. Injectable for testing.
+  final http.Client _httpClient;
+
   /// Generic OAuth2 PKCE utility for token exchange.
   late final OAuth2PkceUtil _oauth2Util;
 
   /// Creates a new instance of [NaverIdpUtils].
-  NaverIdpUtils({required this.config, required final AuthUsers authUsers})
-    : _authUsers = authUsers {
+  ///
+  /// [httpClient] can be injected to mock Naver API calls in tests; it
+  /// defaults to a standard [http.Client].
+  NaverIdpUtils({
+    required this.config,
+    required final AuthUsers authUsers,
+    final http.Client? httpClient,
+  }) : _authUsers = authUsers,
+       _httpClient = httpClient ?? http.Client() {
     _oauth2Util = OAuth2PkceUtil(config: config.oauth2Config);
   }
 
@@ -170,7 +180,7 @@ class NaverIdpUtils {
   }) async {
     // More info on the user info API:
     // https://developers.naver.com/docs/login/profile/profile.md
-    final response = await http.get(
+    final response = await _httpClient.get(
       Uri.parse('https://openapi.naver.com/v1/nid/me'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );

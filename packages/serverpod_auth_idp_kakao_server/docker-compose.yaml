@@ -1,0 +1,14 @@
+services:
+  postgres_test:
+    image: pgvector/pgvector:pg16
+    ports:
+      - '9092:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: serverpod_auth_idp_kakao_test
+      POSTGRES_PASSWORD: "DB_TEST_PASSWORD"
+    volumes:
+      - serverpod_auth_idp_kakao_test_data:/var/lib/postgresql/data
+
+volumes:
+  serverpod_auth_idp_kakao_test_data:
