@@ -1,7 +1,8 @@
 import 'package:serverpod/serverpod.dart';
 
-import '../../generated/protocol.dart';
+import '../generated/protocol.dart';
 import 'naver_idp_utils.dart';
+import 'naver_profile.dart';
 
 /// Collection of Naver-account admin methods.
 class NaverIdpAdmin {

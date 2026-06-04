@@ -103,7 +103,11 @@ class KakaoIdpConfig extends IdentityProviderBuilder<KakaoIdp> {
   }) : oauth2Config = OAuth2PkceServerConfig(
          tokenEndpointUrl: Uri.https('kauth.kakao.com', '/oauth/token'),
          clientId: clientId,
-         clientSecret: clientSecret,
+         // Kakao's client secret is optional (only required when the
+         // "Client Secret" feature is enabled). OAuth2PkceServerConfig requires
+         // a non-null value, so an empty string is sent when unset — Kakao
+         // ignores an empty client_secret when the feature is disabled.
+         clientSecret: clientSecret ?? '',
          credentialsLocation: OAuth2CredentialsLocation.body,
          parseTokenResponse: parseKakaoTokenResponse,
        );

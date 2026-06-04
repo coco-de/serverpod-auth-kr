@@ -1,0 +1,16 @@
+name: serverpod_auth_idp_kakao_client
+description: >-
+  Client library for the serverpod_auth_idp_kakao Serverpod module. Generated
+  protocol + endpoint callers for Kakao login.
+version: 0.1.0
+repository: https://github.com/coco-de/serverpod-auth-kr
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dependencies:
+  serverpod_client: ^3.4.0
+  serverpod_auth_core_client: ^3.4.8
+
+dev_dependencies:
+  lints: ^5.0.0

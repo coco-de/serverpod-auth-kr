@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
-import '../../generated/protocol.dart';
+import '../generated/protocol.dart';
 import '../exceptions/naver_exceptions.dart';
 import 'naver_idp_config.dart';
 import 'naver_profile.dart';

@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
 import 'kakao_idp_utils.dart';
+import 'kakao_profile.dart';
 
 // KakaoAccount 는 `serverpod generate` 후 생성되는 모델이다.
 import '../generated/protocol.dart';

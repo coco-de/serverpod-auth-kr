@@ -5,9 +5,6 @@ import 'kakao_idp_admin.dart';
 import 'kakao_idp_config.dart';
 import 'kakao_idp_utils.dart';
 
-// UserProfile 는 `serverpod generate` 후 생성되는 모델이다.
-import '../generated/protocol.dart';
-
 /// Main class for the Kakao identity provider.
 /// The methods defined here are intended to be called from an endpoint.
 ///
