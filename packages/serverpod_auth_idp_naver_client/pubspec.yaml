@@ -11,6 +11,8 @@ environment:
 dependencies:
   serverpod_client: ^3.4.0
   serverpod_auth_core_client: ^3.4.8
+  # The generated protocol references the parent idp module's client.
+  serverpod_auth_idp_client: ^3.4.8
 
 dev_dependencies:
   lints: ^5.0.0

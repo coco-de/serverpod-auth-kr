@@ -86,60 +86,95 @@ class KakaoIdp {
           transaction: transaction,
         );
 
-        final image = account.details.image;
-        if (account.newAccount) {
-          try {
-            await _userProfiles.createUserProfile(
-              session,
-              account.authUserId,
-              UserProfileData(
-                fullName: account.details.name?.trim(),
-                email: account.details.email,
-              ),
-              transaction: transaction,
-              imageSource: image != null ? UserImageFromUrl(image) : null,
-            );
-          } catch (e, stackTrace) {
-            session.log(
-              'Failed to create user profile for new Kakao user.',
-              level: LogLevel.error,
-              exception: e,
-              stackTrace: stackTrace,
-            );
-          }
-        } else if (image != null) {
-          try {
-            final user = await UserProfile.db.findFirstRow(
-              session,
-              where: (final t) => t.authUserId.equals(account.authUserId),
-              transaction: transaction,
-            );
-            if (user != null && user.image == null) {
-              await _userProfiles.setUserImageFromUrl(
-                session,
-                account.authUserId,
-                image,
-                transaction: transaction,
-              );
-            }
-          } catch (e, stackTrace) {
-            session.log(
-              'Failed to update user profile image for existing Kakao user.',
-              level: LogLevel.error,
-              exception: e,
-              stackTrace: stackTrace,
-            );
-          }
-        }
-
-        return _tokenIssuer.issueToken(
-          session,
-          authUserId: account.authUserId,
-          transaction: transaction,
-          method: method,
-          scopes: account.scopes,
-        );
+        return _issueForAccount(session, account, transaction);
       },
+    );
+  }
+
+  /// {@template kakao_idp.login_with_access_token}
+  /// Logs in (or registers) the user from a Kakao `access token` already
+  /// obtained on the client via the native Kakao SDK. Skips the
+  /// authorization-code exchange and calls Kakao's user API directly.
+  /// {@endtemplate}
+  Future<AuthSuccess> loginWithAccessToken(
+    final Session session, {
+    required final String accessToken,
+    final Transaction? transaction,
+  }) async {
+    return await DatabaseUtil.runInTransactionOrSavepoint(
+      session.db,
+      transaction,
+      (final transaction) async {
+        final account = await utils.authenticate(
+          session,
+          accessToken: accessToken,
+          transaction: transaction,
+        );
+
+        return _issueForAccount(session, account, transaction);
+      },
+    );
+  }
+
+  /// Creates/updates the [UserProfile] for [account] (best effort) and issues
+  /// an [AuthSuccess] token. Shared by [login] and [loginWithAccessToken].
+  Future<AuthSuccess> _issueForAccount(
+    final Session session,
+    final KakaoAuthSuccess account,
+    final Transaction? transaction,
+  ) async {
+    final image = account.details.image;
+    if (account.newAccount) {
+      try {
+        await _userProfiles.createUserProfile(
+          session,
+          account.authUserId,
+          UserProfileData(
+            fullName: account.details.name?.trim(),
+            email: account.details.email,
+          ),
+          transaction: transaction,
+          imageSource: image != null ? UserImageFromUrl(image) : null,
+        );
+      } catch (e, stackTrace) {
+        session.log(
+          'Failed to create user profile for new Kakao user.',
+          level: LogLevel.error,
+          exception: e,
+          stackTrace: stackTrace,
+        );
+      }
+    } else if (image != null) {
+      try {
+        final user = await UserProfile.db.findFirstRow(
+          session,
+          where: (final t) => t.authUserId.equals(account.authUserId),
+          transaction: transaction,
+        );
+        if (user != null && user.image == null) {
+          await _userProfiles.setUserImageFromUrl(
+            session,
+            account.authUserId,
+            image,
+            transaction: transaction,
+          );
+        }
+      } catch (e, stackTrace) {
+        session.log(
+          'Failed to update user profile image for existing Kakao user.',
+          level: LogLevel.error,
+          exception: e,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+
+    return _tokenIssuer.issueToken(
+      session,
+      authUserId: account.authUserId,
+      transaction: transaction,
+      method: method,
+      scopes: account.scopes,
     );
   }
 

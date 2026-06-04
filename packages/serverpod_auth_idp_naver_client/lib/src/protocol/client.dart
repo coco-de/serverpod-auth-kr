@@ -58,6 +58,20 @@ class EndpointNaverIdp extends _i1.EndpointRef {
     },
   );
 
+  /// Logs in (or registers) the user from a Naver `access token` that the
+  /// client already obtained via the native Naver login SDK.
+  ///
+  /// Unlike [login], this skips the authorization-code exchange and calls
+  /// Naver's user info API directly with the supplied token. If a new user is
+  /// created an associated `UserProfile` is also created.
+  _i2.Future<_i3.AuthSuccess> loginWithAccessToken({
+    required String accessToken,
+  }) => caller.callServerEndpoint<_i3.AuthSuccess>(
+    'serverpod_auth_idp_naver.naverIdp',
+    'loginWithAccessToken',
+    {'accessToken': accessToken},
+  );
+
   /// Determines whether the current session has an associated Naver account.
   _i2.Future<bool> hasAccount() => caller.callServerEndpoint<bool>(
     'serverpod_auth_idp_naver.naverIdp',

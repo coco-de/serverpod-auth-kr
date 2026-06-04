@@ -48,6 +48,21 @@ class KakaoIdpEndpoint extends Endpoint {
     );
   }
 
+  /// {@template kakao_idp_endpoint.login_with_access_token}
+  /// Logs in (or registers) the user from a Kakao `access token` that the
+  /// client already obtained via the native Kakao SDK.
+  ///
+  /// Unlike [login], this skips the authorization-code exchange and calls
+  /// Kakao's user API directly. If a new user is created an associated user
+  /// profile is also created.
+  /// {@endtemplate}
+  Future<AuthSuccess> loginWithAccessToken(
+    final Session session, {
+    required final String accessToken,
+  }) async {
+    return kakaoIdp.loginWithAccessToken(session, accessToken: accessToken);
+  }
+
   /// Determines whether the current session has an associated Kakao account.
   Future<bool> hasAccount(final Session session) async =>
       kakaoIdp.hasAccount(session);

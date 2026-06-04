@@ -1,9 +1,13 @@
 name: serverpod_auth_idp_naver_flutter
 description: >-
-  Flutter 클라이언트용 Naver 소셜 로그인 위젯 및 컨트롤러. Naver SDK 로 authorization
-  code 를 획득하고 Serverpod 의 Naver IdP 엔드포인트로 로그인을 위임합니다.
+  Flutter client for the Naver identity provider of serverpod_auth_idp.
+  Auth controller (access-token flow), SDK-agnostic sign-in service, and a
+  Naver-branded sign-in button.
 version: 0.1.0
 repository: https://github.com/coco-de/serverpod-auth-kr
+# Path dependency on the sibling _client package during development.
+# Switch to a versioned dependency before publishing to pub.dev.
+publish_to: none
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -12,9 +16,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  serverpod_flutter: ^3.4.0
-  serverpod_auth_idp_flutter: ^3.4.8
-  flutter_naver_login: ^1.8.0
+  serverpod_auth_core_flutter: ^3.4.8
+  serverpod_auth_idp_naver_client:
+    path: ../serverpod_auth_idp_naver_client
 
 dev_dependencies:
   flutter_lints: ^4.0.0

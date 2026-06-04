@@ -60,6 +60,20 @@ class EndpointKakaoIdp extends _i1.EndpointRef {
     },
   );
 
+  /// Logs in (or registers) the user from a Kakao `access token` that the
+  /// client already obtained via the native Kakao SDK.
+  ///
+  /// Unlike [login], this skips the authorization-code exchange and calls
+  /// Kakao's user API directly. If a new user is created an associated user
+  /// profile is also created.
+  _i2.Future<_i3.AuthSuccess> loginWithAccessToken({
+    required String accessToken,
+  }) => caller.callServerEndpoint<_i3.AuthSuccess>(
+    'serverpod_auth_idp_kakao.kakaoIdp',
+    'loginWithAccessToken',
+    {'accessToken': accessToken},
+  );
+
   /// Determines whether the current session has an associated Kakao account.
   _i2.Future<bool> hasAccount() => caller.callServerEndpoint<bool>(
     'serverpod_auth_idp_kakao.kakaoIdp',
