@@ -1,0 +1,6 @@
+type: module
+nickname: serverpod_auth_idp_kakao
+
+modules:
+  serverpod_auth_idp:
+    nickname: auth

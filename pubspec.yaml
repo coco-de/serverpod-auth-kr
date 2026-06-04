@@ -1,0 +1,28 @@
+name: serverpod_auth_kr_workspace
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dev_dependencies:
+  melos: ^7.0.0
+
+melos:
+  packages:
+    - packages/**
+
+  scripts:
+    analyze:
+      run: melos exec -- dart analyze --fatal-infos
+      description: 전체 패키지 정적 분석
+
+    format:
+      run: melos exec -- dart format .
+      description: 전체 패키지 포맷
+
+    test:
+      run: melos exec --dir-exists=test -- dart test
+      description: 전체 패키지 테스트
+
+    generate:
+      run: melos exec --scope="*_server" -- serverpod generate
+      description: 서버 패키지 serverpod 코드 생성 (모델/엔드포인트)

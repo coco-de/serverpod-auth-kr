@@ -1,0 +1,21 @@
+# Dart / Pub
+.dart_tool/
+.packages
+pubspec.lock
+build/
+.melos_tool/
+
+# Serverpod generated (체크인 정책에 따라 조정)
+# generated/ 는 커밋 — 모델/엔드포인트 코드는 패키지 사용자에게 필요
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+
+# Secrets
+config/passwords.yaml
+*.env

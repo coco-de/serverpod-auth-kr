@@ -1,0 +1,30 @@
+### A fully configured Naver account to be used for logins.
+class: NaverAccount
+serverOnly: true
+table: serverpod_auth_idp_naver_account
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+
+  ### The [AuthUser] this profile belongs to
+  authUser: module:auth:AuthUser?, relation(onDelete=Cascade)
+
+  ### The user identifier given by Naver for this account.
+  userIdentifier: String
+
+  ### The verified email of the user, as received from Naver.
+  ###
+  ### Logins all work through the [userIdentifier], but the email is retained
+  ### for consolidation look-ups.
+  ###
+  ### Stored in lower-case.
+  ###
+  ### This may be null if the user did not consent to share their email.
+  email: String?
+
+  ### The time when this authentication was created.
+  created: DateTime, defaultModel=now
+
+indexes:
+  serverpod_auth_naver_account_user_identifier:
+    fields: userIdentifier
+    unique: true
