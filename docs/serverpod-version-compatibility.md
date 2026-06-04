@@ -57,10 +57,32 @@ dependency_overrides:
 
 통합 후 kobic 루트에서 `serverpod generate` 1회 → 모든 모듈 protocol이 beta.9 기준으로 재생성됩니다.
 
-## 미검증 항목(정직한 한계)
+## beta.9 소스 호환 검증 결과 (2026-06-04, #6521)
 
-- kobic 내부에서 beta.9로 실제 빌드한 라이브 검증은 아직 안 함(= serverpod 모노레포 내부 path override를 재현해야 해 비용이 큼). 위 1~3 근거상 안전하나, **확정 검증은 Phase 2 통합 시 kobic에 override 추가 + 재생성**으로 수행.
-- 만약 beta.9에서 API가 달라지는 부분이 발견되면 소스 패치 범위는 작음(공개 API 표면이 좁음).
+`pubspec_overrides.yaml`(dev 전용, gitignore)로 양 server 패키지의 serverpod 계열을 **3.5.0-beta.9**(kobic 버전, pub.dev hosted)로 강제 후 검증:
+
+```yaml
+dependency_overrides:
+  serverpod: 3.5.0-beta.9
+  serverpod_auth_idp_server: 3.5.0-beta.9
+  serverpod_auth_core_server: 3.5.0-beta.9
+  serverpod_serialization: 3.5.0-beta.9
+  serverpod_test: 3.5.0-beta.9
+```
+
+| 패키지 | `dart pub get` (beta.9) | `dart analyze lib` | 단위 테스트 |
+|--------|------------------------|--------------------|------------|
+| naver_server | ✅ 해석 | ✅ **0건** | ✅ **10/10** |
+| kakao_server | ✅ 해석 | ✅ **0건** | ✅ **9/9** |
+
+→ **우리 손으로 작성한 provider 소스(idp/config/utils/endpoint/profile)는 serverpod 3.5.0-beta.9에서 컴파일·동작 확인.** 공개 API 표면(`IdentityProviderBuilder`/`OAuth2PkceUtil`/`AuthUsers`/`TokenIssuer`/`UserProfiles`)이 3.4.8 ↔ beta.9 동일함이 실측으로 확인됨.
+
+> 모든 serverpod_auth_* 패키지가 pub.dev에 **3.5.0-beta.9로 발행**되어 있어(serverpod/idp_server/core_server/idp_client/core_client/serverpod_test) git ref 없이 hosted 버전 override만으로 검증 가능. kobic도 hosted beta.9 사용(git ref 아님).
+
+### 잔여 (Phase 2)
+
+- **generated 코드** 는 소비처(kobic)의 beta.9 `serverpod_cli`가 재생성(`serverpod generate`) — 본 검증은 `analyze`에서 generated 제외(source 한정). 통합/withServerpod 테스트의 beta.9 재실행은 beta.9 cli regen 후 (Story #6522).
+- **실 OAuth 라운드트립 E2E** 는 콘솔 키 + 디바이스 필요 (Story #6521 잔여 AC).
 
 ## 체크리스트 (Phase 2 통합)
 
