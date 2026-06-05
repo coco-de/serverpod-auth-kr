@@ -8,7 +8,7 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: dead_code, unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
@@ -130,6 +130,7 @@ abstract class KakaoAccount
     int? limit,
     int? offset,
     _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
     KakaoAccountInclude? include,
@@ -139,7 +140,8 @@ abstract class KakaoAccount
       limit: limit,
       offset: offset,
       orderBy: orderBy?.call(KakaoAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use_from_same_package
+          orderDescending,
       orderByList: orderByList?.call(KakaoAccount.t),
       include: include,
     );
@@ -200,26 +202,49 @@ class KakaoAccountUpdateTable extends _i1.UpdateTable<KakaoAccountTable> {
 
   _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> authUserId(
     _i1.UuidValue value,
-  ) => _i1.ColumnValue(table.authUserId, value);
+  ) => _i1.ColumnValue(
+    table.authUserId,
+    value,
+  );
 
   _i1.ColumnValue<String, String> userIdentifier(String value) =>
-      _i1.ColumnValue(table.userIdentifier, value);
+      _i1.ColumnValue(
+        table.userIdentifier,
+        value,
+      );
 
-  _i1.ColumnValue<String, String> email(String? value) =>
-      _i1.ColumnValue(table.email, value);
+  _i1.ColumnValue<String, String> email(String? value) => _i1.ColumnValue(
+    table.email,
+    value,
+  );
 
   _i1.ColumnValue<DateTime, DateTime> created(DateTime value) =>
-      _i1.ColumnValue(table.created, value);
+      _i1.ColumnValue(
+        table.created,
+        value,
+      );
 }
 
 class KakaoAccountTable extends _i1.Table<_i1.UuidValue?> {
   KakaoAccountTable({super.tableRelation})
     : super(tableName: 'serverpod_auth_idp_kakao_account') {
     updateTable = KakaoAccountUpdateTable(this);
-    authUserId = _i1.ColumnUuid('authUserId', this);
-    userIdentifier = _i1.ColumnString('userIdentifier', this);
-    email = _i1.ColumnString('email', this);
-    created = _i1.ColumnDateTime('created', this);
+    authUserId = _i1.ColumnUuid(
+      'authUserId',
+      this,
+    );
+    userIdentifier = _i1.ColumnString(
+      'userIdentifier',
+      this,
+    );
+    email = _i1.ColumnString(
+      'email',
+      this,
+    );
+    created = _i1.ColumnDateTime(
+      'created',
+      this,
+    );
   }
 
   late final KakaoAccountUpdateTable updateTable;
@@ -298,6 +323,7 @@ class KakaoAccountIncludeList extends _i1.IncludeList {
     super.limit,
     super.offset,
     super.orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     super.orderDescending,
     super.orderByList,
     super.include,
@@ -345,6 +371,7 @@ class KakaoAccountRepository {
     int? limit,
     int? offset,
     _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
     _i1.Transaction? transaction,
@@ -356,7 +383,8 @@ class KakaoAccountRepository {
       where: where?.call(KakaoAccount.t),
       orderBy: orderBy?.call(KakaoAccount.t),
       orderByList: orderByList?.call(KakaoAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       limit: limit,
       offset: offset,
       transaction: transaction,
@@ -388,6 +416,7 @@ class KakaoAccountRepository {
     _i1.WhereExpressionBuilder<KakaoAccountTable>? where,
     int? offset,
     _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
     _i1.Transaction? transaction,
@@ -399,7 +428,8 @@ class KakaoAccountRepository {
       where: where?.call(KakaoAccount.t),
       orderBy: orderBy?.call(KakaoAccount.t),
       orderByList: orderByList?.call(KakaoAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       offset: offset,
       transaction: transaction,
       include: include,
@@ -457,7 +487,73 @@ class KakaoAccountRepository {
     KakaoAccount row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insertRow<KakaoAccount>(row, transaction: transaction);
+    return session.db.insertRow<KakaoAccount>(
+      row,
+      transaction: transaction,
+    );
+  }
+
+  /// Upserts all [KakaoAccount]s in the list and returns the resulting rows.
+  ///
+  /// If a row conflicts on the given [conflictColumns], the existing row is
+  /// updated with the new values. Otherwise, a new row is inserted.
+  ///
+  /// If [updateColumns] is provided, only those columns will be updated on
+  /// conflict. If null, all non-conflict, non-id columns are updated.
+  ///
+  /// If [updateWhere] is provided, the update only applies to rows matching the
+  /// given expression. Conflicting rows that don't match are skipped and not
+  /// returned, so the resulting list may be shorter than [rows].
+  ///
+  /// The returned [KakaoAccount]s will have their `id` fields set.
+  ///
+  /// This is an atomic operation, meaning that if one of the rows fails,
+  /// none of the rows will be affected.
+  Future<List<KakaoAccount>> upsert(
+    _i1.DatabaseSession session,
+    List<KakaoAccount> rows, {
+    required _i1.ColumnSelections<KakaoAccountTable> conflictColumns,
+    _i1.ColumnSelections<KakaoAccountTable>? updateColumns,
+    _i1.WhereExpressionBuilder<KakaoAccountTable>? updateWhere,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.upsert<KakaoAccount>(
+      rows,
+      conflictColumns: conflictColumns(KakaoAccount.t),
+      updateColumns: updateColumns?.call(KakaoAccount.t),
+      updateWhere: updateWhere?.call(KakaoAccount.t),
+      transaction: transaction,
+    );
+  }
+
+  /// Upserts a single [KakaoAccount] and returns the resulting row.
+  ///
+  /// If the row conflicts on the given [conflictColumns], the existing row is
+  /// updated. Otherwise, a new row is inserted.
+  ///
+  /// If [updateColumns] is provided, only those columns will be updated on
+  /// conflict. If null, all non-conflict, non-id columns are updated.
+  ///
+  /// If [updateWhere] is provided, the update only applies when the existing
+  /// row matches the expression. Returns `null` if no row was affected — for
+  /// example when [updateWhere] does not match the conflicting row.
+  ///
+  /// The returned [KakaoAccount] will have its `id` field set.
+  Future<KakaoAccount?> upsertRow(
+    _i1.DatabaseSession session,
+    KakaoAccount row, {
+    required _i1.ColumnSelections<KakaoAccountTable> conflictColumns,
+    _i1.ColumnSelections<KakaoAccountTable>? updateColumns,
+    _i1.WhereExpressionBuilder<KakaoAccountTable>? updateWhere,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.upsertRow<KakaoAccount>(
+      row,
+      conflictColumns: conflictColumns(KakaoAccount.t),
+      updateColumns: updateColumns?.call(KakaoAccount.t),
+      updateWhere: updateWhere?.call(KakaoAccount.t),
+      transaction: transaction,
+    );
   }
 
   /// Updates all [KakaoAccount]s in the list and returns the updated rows. If
@@ -519,6 +615,7 @@ class KakaoAccountRepository {
     int? offset,
     _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
     _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.Transaction? transaction,
   }) async {
@@ -529,20 +626,36 @@ class KakaoAccountRepository {
       offset: offset,
       orderBy: orderBy?.call(KakaoAccount.t),
       orderByList: orderByList?.call(KakaoAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       transaction: transaction,
     );
   }
 
   /// Deletes all [KakaoAccount]s in the list and returns the deleted rows.
+  ///
+  /// To specify the order of the returned rows use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
+  ///
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<KakaoAccount>> delete(
     _i1.DatabaseSession session,
     List<KakaoAccount> rows, {
+    _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.delete<KakaoAccount>(rows, transaction: transaction);
+    return session.db.delete<KakaoAccount>(
+      rows,
+      orderBy: orderBy?.call(KakaoAccount.t),
+      orderByList: orderByList?.call(KakaoAccount.t),
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
+      transaction: transaction,
+    );
   }
 
   /// Deletes a single [KakaoAccount].
@@ -551,17 +664,31 @@ class KakaoAccountRepository {
     KakaoAccount row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteRow<KakaoAccount>(row, transaction: transaction);
+    return session.db.deleteRow<KakaoAccount>(
+      row,
+      transaction: transaction,
+    );
   }
 
   /// Deletes all rows matching the [where] expression.
+  ///
+  /// To specify the order of the returned rows use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
   Future<List<KakaoAccount>> deleteWhere(
     _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<KakaoAccountTable> where,
+    _i1.OrderByBuilder<KakaoAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<KakaoAccountTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
     return session.db.deleteWhere<KakaoAccount>(
       where: where(KakaoAccount.t),
+      orderBy: orderBy?.call(KakaoAccount.t),
+      orderByList: orderByList?.call(KakaoAccount.t),
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       transaction: transaction,
     );
   }

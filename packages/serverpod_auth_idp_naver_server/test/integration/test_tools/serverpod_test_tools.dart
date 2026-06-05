@@ -140,12 +140,18 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.SerializationManager serializationManager,
     _i2.EndpointDispatch endpoints,
   ) {
-    naverIdp = _NaverIdpEndpoint(endpoints, serializationManager);
+    naverIdp = _NaverIdpEndpoint(
+      endpoints,
+      serializationManager,
+    );
   }
 }
 
 class _NaverIdpEndpoint {
-  _NaverIdpEndpoint(this._endpointDispatch, this._serializationManager);
+  _NaverIdpEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
 
   final _i2.EndpointDispatch _endpointDispatch;
 

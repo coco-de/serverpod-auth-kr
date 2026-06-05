@@ -8,7 +8,7 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: dead_code, unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
@@ -128,6 +128,7 @@ abstract class NaverAccount
     int? limit,
     int? offset,
     _i1.OrderByBuilder<NaverAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
     NaverAccountInclude? include,
@@ -137,7 +138,8 @@ abstract class NaverAccount
       limit: limit,
       offset: offset,
       orderBy: orderBy?.call(NaverAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use_from_same_package
+          orderDescending,
       orderByList: orderByList?.call(NaverAccount.t),
       include: include,
     );
@@ -198,26 +200,49 @@ class NaverAccountUpdateTable extends _i1.UpdateTable<NaverAccountTable> {
 
   _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> authUserId(
     _i1.UuidValue value,
-  ) => _i1.ColumnValue(table.authUserId, value);
+  ) => _i1.ColumnValue(
+    table.authUserId,
+    value,
+  );
 
   _i1.ColumnValue<String, String> userIdentifier(String value) =>
-      _i1.ColumnValue(table.userIdentifier, value);
+      _i1.ColumnValue(
+        table.userIdentifier,
+        value,
+      );
 
-  _i1.ColumnValue<String, String> email(String? value) =>
-      _i1.ColumnValue(table.email, value);
+  _i1.ColumnValue<String, String> email(String? value) => _i1.ColumnValue(
+    table.email,
+    value,
+  );
 
   _i1.ColumnValue<DateTime, DateTime> created(DateTime value) =>
-      _i1.ColumnValue(table.created, value);
+      _i1.ColumnValue(
+        table.created,
+        value,
+      );
 }
 
 class NaverAccountTable extends _i1.Table<_i1.UuidValue?> {
   NaverAccountTable({super.tableRelation})
     : super(tableName: 'serverpod_auth_idp_naver_account') {
     updateTable = NaverAccountUpdateTable(this);
-    authUserId = _i1.ColumnUuid('authUserId', this);
-    userIdentifier = _i1.ColumnString('userIdentifier', this);
-    email = _i1.ColumnString('email', this);
-    created = _i1.ColumnDateTime('created', this);
+    authUserId = _i1.ColumnUuid(
+      'authUserId',
+      this,
+    );
+    userIdentifier = _i1.ColumnString(
+      'userIdentifier',
+      this,
+    );
+    email = _i1.ColumnString(
+      'email',
+      this,
+    );
+    created = _i1.ColumnDateTime(
+      'created',
+      this,
+    );
   }
 
   late final NaverAccountUpdateTable updateTable;
@@ -294,6 +319,7 @@ class NaverAccountIncludeList extends _i1.IncludeList {
     super.limit,
     super.offset,
     super.orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     super.orderDescending,
     super.orderByList,
     super.include,
@@ -341,6 +367,7 @@ class NaverAccountRepository {
     int? limit,
     int? offset,
     _i1.OrderByBuilder<NaverAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
     _i1.Transaction? transaction,
@@ -352,7 +379,8 @@ class NaverAccountRepository {
       where: where?.call(NaverAccount.t),
       orderBy: orderBy?.call(NaverAccount.t),
       orderByList: orderByList?.call(NaverAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       limit: limit,
       offset: offset,
       transaction: transaction,
@@ -384,6 +412,7 @@ class NaverAccountRepository {
     _i1.WhereExpressionBuilder<NaverAccountTable>? where,
     int? offset,
     _i1.OrderByBuilder<NaverAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
     _i1.Transaction? transaction,
@@ -395,7 +424,8 @@ class NaverAccountRepository {
       where: where?.call(NaverAccount.t),
       orderBy: orderBy?.call(NaverAccount.t),
       orderByList: orderByList?.call(NaverAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       offset: offset,
       transaction: transaction,
       include: include,
@@ -453,7 +483,73 @@ class NaverAccountRepository {
     NaverAccount row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insertRow<NaverAccount>(row, transaction: transaction);
+    return session.db.insertRow<NaverAccount>(
+      row,
+      transaction: transaction,
+    );
+  }
+
+  /// Upserts all [NaverAccount]s in the list and returns the resulting rows.
+  ///
+  /// If a row conflicts on the given [conflictColumns], the existing row is
+  /// updated with the new values. Otherwise, a new row is inserted.
+  ///
+  /// If [updateColumns] is provided, only those columns will be updated on
+  /// conflict. If null, all non-conflict, non-id columns are updated.
+  ///
+  /// If [updateWhere] is provided, the update only applies to rows matching the
+  /// given expression. Conflicting rows that don't match are skipped and not
+  /// returned, so the resulting list may be shorter than [rows].
+  ///
+  /// The returned [NaverAccount]s will have their `id` fields set.
+  ///
+  /// This is an atomic operation, meaning that if one of the rows fails,
+  /// none of the rows will be affected.
+  Future<List<NaverAccount>> upsert(
+    _i1.DatabaseSession session,
+    List<NaverAccount> rows, {
+    required _i1.ColumnSelections<NaverAccountTable> conflictColumns,
+    _i1.ColumnSelections<NaverAccountTable>? updateColumns,
+    _i1.WhereExpressionBuilder<NaverAccountTable>? updateWhere,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.upsert<NaverAccount>(
+      rows,
+      conflictColumns: conflictColumns(NaverAccount.t),
+      updateColumns: updateColumns?.call(NaverAccount.t),
+      updateWhere: updateWhere?.call(NaverAccount.t),
+      transaction: transaction,
+    );
+  }
+
+  /// Upserts a single [NaverAccount] and returns the resulting row.
+  ///
+  /// If the row conflicts on the given [conflictColumns], the existing row is
+  /// updated. Otherwise, a new row is inserted.
+  ///
+  /// If [updateColumns] is provided, only those columns will be updated on
+  /// conflict. If null, all non-conflict, non-id columns are updated.
+  ///
+  /// If [updateWhere] is provided, the update only applies when the existing
+  /// row matches the expression. Returns `null` if no row was affected — for
+  /// example when [updateWhere] does not match the conflicting row.
+  ///
+  /// The returned [NaverAccount] will have its `id` field set.
+  Future<NaverAccount?> upsertRow(
+    _i1.DatabaseSession session,
+    NaverAccount row, {
+    required _i1.ColumnSelections<NaverAccountTable> conflictColumns,
+    _i1.ColumnSelections<NaverAccountTable>? updateColumns,
+    _i1.WhereExpressionBuilder<NaverAccountTable>? updateWhere,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.upsertRow<NaverAccount>(
+      row,
+      conflictColumns: conflictColumns(NaverAccount.t),
+      updateColumns: updateColumns?.call(NaverAccount.t),
+      updateWhere: updateWhere?.call(NaverAccount.t),
+      transaction: transaction,
+    );
   }
 
   /// Updates all [NaverAccount]s in the list and returns the updated rows. If
@@ -515,6 +611,7 @@ class NaverAccountRepository {
     int? offset,
     _i1.OrderByBuilder<NaverAccountTable>? orderBy,
     _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
+    @Deprecated('Use desc() on the orderBy column instead.')
     bool orderDescending = false,
     _i1.Transaction? transaction,
   }) async {
@@ -525,20 +622,36 @@ class NaverAccountRepository {
       offset: offset,
       orderBy: orderBy?.call(NaverAccount.t),
       orderByList: orderByList?.call(NaverAccount.t),
-      orderDescending: orderDescending,
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       transaction: transaction,
     );
   }
 
   /// Deletes all [NaverAccount]s in the list and returns the deleted rows.
+  ///
+  /// To specify the order of the returned rows use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
+  ///
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<NaverAccount>> delete(
     _i1.DatabaseSession session,
     List<NaverAccount> rows, {
+    _i1.OrderByBuilder<NaverAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.delete<NaverAccount>(rows, transaction: transaction);
+    return session.db.delete<NaverAccount>(
+      rows,
+      orderBy: orderBy?.call(NaverAccount.t),
+      orderByList: orderByList?.call(NaverAccount.t),
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
+      transaction: transaction,
+    );
   }
 
   /// Deletes a single [NaverAccount].
@@ -547,17 +660,31 @@ class NaverAccountRepository {
     NaverAccount row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteRow<NaverAccount>(row, transaction: transaction);
+    return session.db.deleteRow<NaverAccount>(
+      row,
+      transaction: transaction,
+    );
   }
 
   /// Deletes all rows matching the [where] expression.
+  ///
+  /// To specify the order of the returned rows use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
   Future<List<NaverAccount>> deleteWhere(
     _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<NaverAccountTable> where,
+    _i1.OrderByBuilder<NaverAccountTable>? orderBy,
+    @Deprecated('Use desc() on the orderBy column instead.')
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<NaverAccountTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
     return session.db.deleteWhere<NaverAccount>(
       where: where(NaverAccount.t),
+      orderBy: orderBy?.call(NaverAccount.t),
+      orderByList: orderByList?.call(NaverAccount.t),
+      orderDescending: // ignore: deprecated_member_use
+          orderDescending,
       transaction: transaction,
     );
   }
